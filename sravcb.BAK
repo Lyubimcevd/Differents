@@ -56,8 +56,8 @@ IF RECCOUNT('cur_unic')#0
 		ENDIF
 	ENDFOR
 ENDIF
-str_query = "select convert(smallint,npat) as np,COUNT(*) FROM bpd.bank1 WHERE dvv='";
-			+CHRTRAN(cur_date,'.','')+"' and grup<700 group by npat"
+str_query = "select convert(smallint,npat) as np,COUNT(*) FROM bpd.bank1 WHERE grup<700 and dvv='";
+			+CHRTRAN(cur_date,'.','')+"' group by npat"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
 SELECT 'cur_unic'
 RELEASE Arr

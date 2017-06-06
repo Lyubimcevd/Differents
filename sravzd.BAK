@@ -61,7 +61,7 @@ IF RECCOUNT('cur_unic')#0
 	ENDFOR
 ENDIF
 str_query = "select convert(smallint,mak) as ci,convert(smallint,np) as np,COUNT(*);
- FROM bpd.mlpd WHERE dvv='"+CHRTRAN(cur_date,'.','')+"' group by np,mak"
+ FROM bpd.mlpd WHERE grup<700 and dvv='"+CHRTRAN(cur_date,'.','')+"' group by np,mak"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
 SELECT 'cur_unic'
 IF RECCOUNT('cur_unic')#0

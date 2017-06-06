@@ -8,7 +8,7 @@ SET DATE GERMAN
 SET CENTURY ON
 
 cur_date = ALLTRIM(DTOC(DATE()))
-print_path = "finish.txt"
+print_path = "&PDTXT\finish.txt"
 SET PRINT TO &print_path
 SET CONS OFF
 SET PRINT ON
@@ -101,7 +101,7 @@ IF RECCOUNT('cur_unic')#0
 				SELECT 'cur_unic'
 				RELEASE Arr1
 				COPY TO array Arr1 
-				kolvo_real_ch = Arr1[1,1]
+				kolvo_real_ch = Arr1[1]
 			ENDIF
 		ENDIF
 		str_query = "UPDATE bpd.registr_documents SET kolvo_real =";

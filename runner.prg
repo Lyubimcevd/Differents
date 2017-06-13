@@ -1,3 +1,3 @@
 SET DEFAULT TO "D:\Project\Различия\"
-DO FORM smotuc WITH 119
-*DO srcou WITH 119,' '
+*DO FORM rabnar WITH 117
+DO sravrn WITH 117,' '

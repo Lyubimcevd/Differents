@@ -19,7 +19,13 @@ SET PRINT ON
 ?
 
 CREATE CURSOR tmp(ci N,np N,kolvo N,kolvo_real N)
-susp
+str_query = "select convert(char(10),dt,104) as dt from bpd.registr_documents where doc_type = ";
+			+ALLTRIM(STR(ctype))
+b = SQLEXEC(con_bd,str_query,'cur_unic')
+SELECT 'cur_unic'
+RELEASE Arr
+COPY TO ARRAY Arr
+cur_date = Arr[ALEN(Arr,1)]
 str_query = "select ci,np,kolvo from bpd.registr_documents where doc_type = ";
 			+ALLTRIM(STR(ctype))+ " and dt = convert(date,'"+cur_date+"')"
 b = SQLEXEC(con_bd,str_query,'cur_unic')

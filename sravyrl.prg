@@ -8,7 +8,7 @@ SET DATE GERMAN
 SET CENTURY ON
 
 cur_date = ALLTRIM(DTOC(DATE()))
-print_path = "&PDTXT\finish.txt"
+print_path = "&PDTXT/inish.txt"
 SET PRINT TO &print_path
 SET CONS OFF
 SET PRINT ON

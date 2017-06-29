@@ -19,13 +19,6 @@ SET PRINT ON
 ?
 
 CREATE CURSOR tmp(ci N,np N,kolvo N,kolvo_real N)
-str_query = "select convert(char(10),dt,104) as dt from bpd.registr_documents where doc_type = ";
-			+ALLTRIM(STR(ctype))
-b = SQLEXEC(con_bd,str_query,'cur_unic')
-SELECT 'cur_unic'
-RELEASE Arr
-COPY TO ARRAY Arr
-cur_date = Arr[ALEN(Arr,1)]
 str_query = "select ci,np,kolvo from bpd.registr_documents where doc_type = ";
 			+ALLTRIM(STR(ctype))+ " and dt = convert(date,'"+cur_date+"')"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
@@ -37,7 +30,7 @@ IF RECCOUNT('cur_unic')#0
 		cur_ci = ALLTRIM(STR(Arr[i,1]))
 		cur_np = ALLTRIM(STR(Arr[i,2]))
 		cur_kolvo = ALLTRIM(STR(Arr[i,3]))
-		str_query = "select COUNT(*) FROM bpd.ñou WHERE grup<700 AND dvv='";
+		str_query = "select COUNT(*) FROM bpd.ñou WHERE grup<700 and grup != 000 AND dvv='";
 						+CHRTRAN(cur_date,'.','')+"' AND ci = "+cur_ci+" AND np = ";
 						+cur_np+" group by ci,np "
 			b = SQLEXEC(con_bd,str_query,'cur_unic')
@@ -60,7 +53,7 @@ IF RECCOUNT('cur_unic')#0
 	ENDFOR
 ENDIF
 str_query = "select convert(smallint,Ci) as ci,convert(smallint,np) as np,COUNT(*) FROM;
- bpd.cou WHERE grup<700 and dvv='"+CHRTRAN(cur_date,'.','')+"' group by ci,np "
+ bpd.cou WHERE grup<700 and grup != 000 and dvv='"+CHRTRAN(cur_date,'.','')+"' group by ci,np "
 b = SQLEXEC(con_bd,str_query,'cur_unic')
 IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'

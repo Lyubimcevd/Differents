@@ -30,7 +30,7 @@ IF RECCOUNT('cur_unic')#0
 		cur_ci = ALLTRIM(STR(Arr[i,1]))
 		cur_np = ALLTRIM(STR(Arr[i,2]))
 		cur_kolvo = ALLTRIM(STR(Arr[i,3]))
-		str_query = "select COUNT(*) FROM bpd.ñou WHERE grup<700 AND dvv='";
+		str_query = "select COUNT(*) FROM bpd.ñou WHERE grup<700 and grup != 000 AND dvv='";
 						+CHRTRAN(cur_date,'.','')+"' AND ci = "+cur_ci+" AND np = ";
 						+cur_np+" group by ci,np "
 			b = SQLEXEC(con_bd,str_query,'cur_unic')

@@ -8,7 +8,7 @@ SET DATE GERMAN
 SET CENTURY ON
 
 cur_date = ALLTRIM(DTOC(DATE()))
-print_path = "&PDTXT\finish.txt"
+print_path = "finish.txt"
 SET PRIN TO &print_path
 SET CONS OFF
 SET PRINT ON
@@ -53,7 +53,7 @@ IF RECCOUNT('cur_unic')#0
 	ENDFOR
 ENDIF
 str_query = "select convert(smallint,Ci) as ci,convert(smallint,np) as np,COUNT(*) FROM;
- bpd.cou WHERE grup<700 and dvv='"+CHRTRAN(cur_date,'.','')+"' group by ci,np "
+ bpd.cou WHERE grup<700 and grup != 000 and dvv='"+CHRTRAN(cur_date,'.','')+"' group by ci,np "
 b = SQLEXEC(con_bd,str_query,'cur_unic')
 IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'

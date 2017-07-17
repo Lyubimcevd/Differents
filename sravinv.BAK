@@ -7,7 +7,7 @@ SET SQLBUFFERING ON
 SET DATE GERMAN
 SET CENTURY ON
 
-print_path = "&PDTXT\finish.txt"
+print_path = "finish.txt"
 SET PRINT TO &print_path
 SET CONS OFF
 SET PRINT ON
@@ -114,7 +114,7 @@ IF RECCOUNT('cur_unic')#0
 	ENDFOR
 ENDIF
 str_query = "select convert(smallint,Ci) as ci,convert(smallint,npat) as np,COUNT(*) FROM;
- bpd.inven WHERE nk!=nc and prs='1' and grup<700 group by ci,npat "
+ bpd.inven WHERE grup<700 and nk!=nc and prs='1' group by ci,npat "
 b = SQLEXEC(con_bd,str_query,'cur_unic')
 IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'

@@ -7,12 +7,12 @@ SET SQLBUFFERING ON
 SET DATE GERMAN
 SET CENTURY ON
 
-cur_date = ALLTRIM(DTOC(DATE()))
+cur_date = ALLTRIM(DTOC(DATE())))
 print_path = "&PDTXT/inish.txt"
 SET PRINT TO &print_path
 SET CONS OFF
 SET PRINT ON
-?CPCONVERT(1251,866,' Протокол '+cPrName+' за '+cur_date)
+?CPCONVERT(1251,866,' Протокол '+cPrName+' за '+cur_date
 ?REPL('-',(62))
 ?CPCONVERT(1251,866,': Цех : Пачка : Количество зарегист. : Количество подготовл. :')
 ?REPL('-',(62))
@@ -23,7 +23,6 @@ SET PRINT ON
 str_query = "select ci,np,kolvo from bpd.registr_documents where doc_type = ";
 			+ALLTRIM(STR(ctype))+ " and dt = convert(date,'"+cur_date+"')"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
-IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'
 	RELEASE Arr
 	COPY TO ARRAY Arr
@@ -47,7 +46,6 @@ IF RECCOUNT('cur_unic')#0
  			b = SQLEXEC(con_bd,str_query,'cur_unic')
  		ENDIF
 	ENDFOR
-ENDIF  
 
 CREATE CURSOR tmp(ci N,np N,kolvo N,kolvo_real N)
 str_query = "select ci,np,kolvo from bpd.registr_documents where doc_type = ";

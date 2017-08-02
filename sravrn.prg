@@ -7,7 +7,7 @@ SET SQLBUFFERING ON
 SET DATE GERMAN
 SET CENTURY ON
 
-print_path = "finish.txt"
+print_path = "&PDTXT/finish.txt"
 SET PRIN TO &print_path
 SET CONS OFF
 SET PRINT ON
@@ -73,50 +73,54 @@ ENDFOR
 str_query = "select convert(smallint,Ce) as ce,convert(smallint,np) as np,COUNT(*) FROM;
  bpd.rn WHERE grup<700 group by ce,np"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
-SELECT 'cur_unic'
-RELEASE Arr
-COPY TO ARRAY Arr
-FOR i = 1 TO ALEN(Arr,1)
-	cur_ci = ALLTRIM(STR(Arr[i,1]))
-	cur_np = ALLTRIM(STR(Arr[i,2]))
-	str_query = "select dvv FROM bpd.rn WHERE np = "+cur_np+" and ce = "+cur_ci
-	b = SQLEXEC(con_bd,str_query,'cur_unic')
+IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'
-	RELEASE Arr1
-	COPY TO ARRAY Arr1
-	cur_date = STUFF(STUFF(Arr1[1,1],3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'";
-			+cur_date+"') and ci = "+cur_ci+" and np = "+cur_np+" and doc_type = "+ALLTRIM(STR(ctype))
-	b = SQLEXEC(con_bd,str_query,'cur_unic')
-	IF RECCOUNT('cur_unic') = 0
-		INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,Arr[i,1],Arr[i,2];
-,0,Arr[i,3],'Рабочие наряды')
-	ENDIF
-ENDFOR
+	RELEASE Arr
+	COPY TO ARRAY Arr
+	FOR i = 1 TO ALEN(Arr,1)
+		cur_ci = ALLTRIM(STR(Arr[i,1]))
+		cur_np = ALLTRIM(STR(Arr[i,2]))
+		str_query = "select dvv FROM bpd.rn WHERE np = "+cur_np+" and ce = "+cur_ci
+		b = SQLEXEC(con_bd,str_query,'cur_unic')
+		SELECT 'cur_unic'
+		RELEASE Arr1
+		COPY TO ARRAY Arr1
+		cur_date = STUFF(STUFF(Arr1[1,1],3,0,'.'),6,0,'.')
+		str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'";
+				+cur_date+"') and ci = "+cur_ci+" and np = "+cur_np+" and doc_type = "+ALLTRIM(STR(ctype))
+		b = SQLEXEC(con_bd,str_query,'cur_unic')
+		IF RECCOUNT('cur_unic') = 0
+			INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,Arr[i,1],Arr[i,2];
+	,0,Arr[i,3],'Рабочие наряды')
+		ENDIF
+	ENDFOR
+ENDIF
 
 str_query = "select convert(smallint,Ce) as ce,convert(smallint,np) as np,COUNT(*) FROM;
  bpd.brigv WHERE grup<700 group by ce,np"
 b = SQLEXEC(con_bd,str_query,'cur_unic')
-SELECT 'cur_unic'
-RELEASE Arr
-COPY TO ARRAY Arr
-FOR i = 1 TO ALEN(Arr,1)
-	cur_ci = ALLTRIM(STR(Arr[i,1]))
-	cur_np = ALLTRIM(STR(Arr[i,2]))
-	str_query = "select dvv FROM bpd.brigv WHERE np = "+cur_np+" and ce = "+cur_ci
-	b = SQLEXEC(con_bd,str_query,'cur_unic')
+IF RECCOUNT('cur_unic')#0
 	SELECT 'cur_unic'
-	RELEASE Arr1
-	COPY TO ARRAY Arr1
-	cur_date = STUFF(STUFF(Arr1[1,1],3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'";
-		+cur_date+"') and ci = "+cur_ci+" and np = "+cur_np+" and doc_type = "+ALLTRIM(STR(ctype))
-	b = SQLEXEC(con_bd,str_query,'cur_unic')
-	IF RECCOUNT('cur_unic') = 0
-		INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,Arr[i,1],Arr[i,2];
-,0,Arr[i,3],'Бригадные ведомости')
-	ENDIF
-ENDFOR
+	RELEASE Arr
+	COPY TO ARRAY Arr
+	FOR i = 1 TO ALEN(Arr,1)
+		cur_ci = ALLTRIM(STR(Arr[i,1]))
+		cur_np = ALLTRIM(STR(Arr[i,2]))
+		str_query = "select dvv FROM bpd.brigv WHERE np = "+cur_np+" and ce = "+cur_ci
+		b = SQLEXEC(con_bd,str_query,'cur_unic')
+		SELECT 'cur_unic'
+		RELEASE Arr1
+		COPY TO ARRAY Arr1
+		cur_date = STUFF(STUFF(Arr1[1,1],3,0,'.'),6,0,'.')
+		str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'";
+			+cur_date+"') and ci = "+cur_ci+" and np = "+cur_np+" and doc_type = "+ALLTRIM(STR(ctype))
+		b = SQLEXEC(con_bd,str_query,'cur_unic')
+		IF RECCOUNT('cur_unic') = 0
+			INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,Arr[i,1],Arr[i,2];
+	,0,Arr[i,3],'Бригадные ведомости')
+		ENDIF
+	ENDFOR
+ENDIF
 
 IF RECCOUNT('tmp')#0
 	SELECT 'tmp'

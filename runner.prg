@@ -1,3 +1,3 @@
 SET DEFAULT TO "D:\Project\Различия\"
-*DO FORM zvkdgv WITH 92
-DO sravyrl WITH 120,' '
+DO FORM combnk WITH 88
+*DO sravzd WITH 92,''

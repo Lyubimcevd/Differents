@@ -18,8 +18,8 @@ SET PRINT ON
 ?
 
 CREATE CURSOR tmp(dt C(10),ci V(4),np V(4),kolvo N,kolvo_real N)
-str_query = "select top 200 convert(varchar(4),ci) as ci,convert(varchar(4),np) as np,kolvo,kolvo_real,convert(char(10),dt,104) as dt2 from";
-			+" bpd.registr_documents where doc_type = "+STR(ctype)+" order by dt desc"
+str_query = "select convert(varchar(4),ci) as ci,convert(varchar(4),np) as np,kolvo,convert(char(10),dt,104) as dt2 from";
+			+" bpd.registr_documents where doc_type = "+STR(ctype)+" and is_check = 0"
 b = SQLEXEC(con_bd,str_query,'cur_cou')
 SELECT 'cur_cou'
 SCAN WHILE ISNULL(kolvo_real)
@@ -34,8 +34,8 @@ SCAN WHILE ISNULL(kolvo_real)
 	ELSE
 		SELECT 'tmp_cur'
 		cur_kolvo_real = k
-		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+" WHERE dt=convert(date,'"+cur_date+"') and CI=";
-					+cur_ci+" AND NP="+cur_np+" and doc_type = "+STR(ctype)
+		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+",is_check = 1 WHERE CI="+cur_ci+" AND NP="+cur_np;
+			+" and doc_type = "+STR(ctype)+" and is_check = 0"
 		b = SQLEXEC(con_bd,str_query)
 		IF cur_kolvo_real # cur_kolvo
 			INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real) VALUES (cur_date,cur_ci,cur_np,cur_kolvo,cur_kolvo_real)
@@ -46,23 +46,21 @@ ENDSCAN
 
 str_query = "select convert(varchar(4),convert(smallint, ci)) as ci,convert(varchar(4),convert(smallint,np)) as np,COUNT(*) as k FROM bpd.cou";
 			+" WHERE grup<700 and grup != 000 group by ci,np"
-b = SQLEXEC(con_bd,str_query,'cur_cou')
-SELECT 'cur_cou'
+b = SQLEXEC(con_bd,str_query,'cur_cou_oper')
+SELECT 'cur_cou_oper'
 SCAN
-	cur_ci = ci
-	cur_np = np 
+	cur_ci = ALLTRIM(ci)
+	cur_np = ALLTRIM(np) 
 	cur_kolvo_real = k
 	str_query = "select dvv FROM bpd.cou WHERE np = "+cur_np+" and ci = "+cur_ci
 	b = SQLEXEC(con_bd,str_query,'tmp_cur')
 	SELECT 'tmp_cur'
 	cur_date = STUFF(STUFF(dvv,3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'"+cur_date+"') and ci = "+cur_ci+" and np = "+cur_np+" and doc_type = ";
-				+STR(ctype)
-	b = SQLEXEC(con_bd,str_query,'tmp_cur')
+	SELECT * FROM cur_cou WHERE np = cur_np AND ci = cur_ci INTO CURSOR tmp_cur
 	IF RECCOUNT('tmp_cur') = 0
 		INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real) VALUES (cur_date,cur_ci,cur_np,0,cur_kolvo_real)
 	ENDIF
-	SELECT 'cur_cou'
+	SELECT 'cur_cou_oper'
 ENDSCAN
 
 SELECT 'tmp'

@@ -1,3 +1,18 @@
 SET DEFAULT TO "D:\Project\Различия\"
-*DO FORM vvzak WITH 200
-DO srvvzak WITH 102,''
+PDTXT = "D:/"
+*DO FORM smotuc WITH 119
+DO FORM tmpkos WITH 1
+*!*	DO sravcb WITH 88,''
+*!*	DO sravinv WITH 139,''
+*!*	DO sravinz WITH 76,''
+*!*	DO sravkor WITH 86,''
+*!*	DO sravrn WITH 117,''
+*	DO sravyrl WITH 120,''
+*!*	DO sravzd WITH 92,''
+*	DO srcou WITH 119,''
+*!*	DO srkrras WITH 1,''
+*!*	DO srmater WITH 1,''
+*!*	DO srpokr WITH 1,''
+*!*	DO srtrud WITH 1,''
+*!*	DO srvvzak WITH 103,''
+*!*	DO srzagot WITH 1,''

@@ -7,7 +7,7 @@ SET SQLBUFFERING ON
 SET DATE GERMAN
 SET CENTURY ON
 
-print_path = "&PDTXT/finish.txt"
+print_path = "&finish.txt"
 SET PRIN TO &print_path
 SET CONS OFF
 SET PRINT ON
@@ -18,22 +18,20 @@ SET PRINT ON
 ?
 
 CREATE CURSOR tmp(dt C(10),ci V(4),np V(4),kolvo N,kolvo_real N,invtp V(20))
-str_query = "select top 200 convert(varchar(4),ci) as ci,convert(varchar(4),np) as np,kolvo,kolvo_real,convert(varchar(1),invtp) as invtp,";
-			+"convert(char(10),dt,104) as dt2 from bpd.registr_documents where doc_type = "+STR(ctype)+" order by dt desc"
+str_query = "select convert(varchar(4),ci) as ci,convert(varchar(4),np) as np,kolvo,convert(varchar(1),invtp) as invtp,";
+			+"convert(char(10),dt,104) as dt2 from bpd.registr_documents where doc_type = "+STR(ctype)+" and is_check = 0"
 b = SQLEXEC(con_bd,str_query,'cur_rn')
 SELECT 'cur_rn'
-SCAN WHILE ISNULL(kolvo_real)
+SCAN
 	cur_date = dt2
 	cur_ci = ALLTRIM(ci)
 	cur_np = ALLTRIM(np)
 	cur_kolvo = kolvo
 	cur_invtp = invtp
 	IF cur_invtp  = '1'
-		str_query = "select COUNT(*) as k FROM bpd.rn WHERE grup<700 AND ce = "+cur_ci+" AND np = "+cur_np+" and dvv = '";
-				+CHRTRAN(cur_date,'.','')+"' group by ce,np"
+		str_query = "select COUNT(*) as k FROM bpd.rn WHERE grup<700 AND ce = "+cur_ci+" AND np = "+cur_np+" group by ce,np"
 	ELSE
-		str_query = "select COUNT(*) as k FROM bpd.brigv WHERE grup<700 AND ce = "+cur_ci+" AND np = "+cur_np+" and dvv = '";
-				+CHRTRAN(cur_date,'.','')+"' group by ce,np"
+		str_query = "select COUNT(*) as k FROM bpd.brigv WHERE grup<700 AND ce = "+cur_ci+" AND np = "+cur_np+" group by ce,np"
 	ENDIF			
 	b = SQLEXEC(con_bd,str_query,'tmp_cur')
 	IF RECCOUNT('tmp_cur')=0
@@ -41,8 +39,8 @@ SCAN WHILE ISNULL(kolvo_real)
 	ELSE
 		SELECT 'tmp_cur'
 		cur_kolvo_real = k
-		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+" WHERE dt = convert(date,'"+cur_date+"') and CI=";
-				+cur_ci+" AND NP="+cur_np+" AND doc_type = "+STR(ctype)
+		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+",is_check = 1 WHERE CI="+cur_ci+" AND NP="+cur_np;
+			+" and is_check = 0 AND doc_type = "+STR(ctype)
 		b = SQLEXEC(con_bd,str_query)
 		IF cur_kolvo_real#cur_kolvo
 			INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,cur_ci,cur_np,cur_kolvo,cur_kolvo_real,cur_invtp)
@@ -53,8 +51,8 @@ ENDSCAN
 
 str_query = "select convert(varchar(4),convert(smallint,Ce)) as ci,convert(varchar(4),convert(smallint,np)) as np,COUNT(*) as k FROM bpd.rn";
 			+" WHERE grup<700 group by ce,np"
-b = SQLEXEC(con_bd,str_query,'cur_rn')
-SELECT 'cur_rn'
+b = SQLEXEC(con_bd,str_query,'cur_rn_oper')
+SELECT 'cur_rn_oper'
 SCAN 
 	cur_ci = ALLTRIM(ci)
 	cur_np = ALLTRIM(np)
@@ -63,19 +61,17 @@ SCAN
 	b = SQLEXEC(con_bd,str_query,'tmp_cur')
 	SELECT 'tmp_cur'
 	cur_date = STUFF(STUFF(dvv,3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'"+cur_date+"') and np = "+cur_np+" and ci = "+cur_ci+"and doc_type = ";
-				+STR(ctype)+" and invtp = 1"
-	b = SQLEXEC(con_bd,str_query,'tmp_cur')
+	SELECT * FROM cur_rn WHERE np = cur_np AND ci = cur_ci AND invtp = '1' INTO CURSOR tmp_cur
 	IF RECCOUNT('tmp_cur') = 0
 		INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,cur_ci,cur_np,0,cur_kolvo_real,'1')
 	ENDIF
-	SELECT 'cur_rn'
+	SELECT 'cur_rn_oper'
 ENDSCAN
 
 str_query = "select convert(varchar(4),convert(smallint,Ce)) as ci,convert(varchar(4),convert(smallint,np)) as np,COUNT(*) as k FROM bpd.brigv";
 			+" WHERE grup<700 group by ce,np"
-b = SQLEXEC(con_bd,str_query,'cur_brigv')
-SELECT 'cur_brigv'
+b = SQLEXEC(con_bd,str_query,'cur_brigv_oper')
+SELECT 'cur_brigv_oper'
 SCAN 
 	cur_ci = ALLTRIM(ci)
 	cur_np = ALLTRIM(np)
@@ -84,13 +80,11 @@ SCAN
 	b = SQLEXEC(con_bd,str_query,'tmp_cur')
 	SELECT 'tmp_cur'
 	cur_date = STUFF(STUFF(dvv,3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'"+cur_date+"') and np = "+cur_np+" and ci = "+cur_ci+"and doc_type = ";
-				+STR(ctype)+" and invtp = 2"
-	b = SQLEXEC(con_bd,str_query,'tmp_cur')
+	SELECT * FROM cur_rn WHERE np = cur_np AND ci = cur_ci AND invtp = '2' INTO CURSOR tmp_cur
 	IF RECCOUNT('tmp_cur') = 0
 		INSERT INTO tmp(dt,ci,np,kolvo,kolvo_real,invtp) VALUES (cur_date,cur_ci,cur_np,0,cur_kolvo_real,'2')
 	ENDIF
-	SELECT 'cur_brigv'
+	SELECT 'cur_brigv_oper'
 ENDSCAN 
 
 UPDATE tmp SET invtp = "Рабочие наряды" WHERE invtp = '1'

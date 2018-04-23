@@ -18,11 +18,11 @@ SET PRINT ON
 ?
 
 CREATE CURSOR tmp(dt C(10),np V(4),kolvo N,kolvo_real N)
-str_query = "select top 200 convert(varchar(4),np) as np,kolvo,kolvo_real,convert(char(10),dt,104) as dt2 from";
-			+" bpd.registr_documents where doc_type = "+STR(ctype)+" and invtp = 4 order by dt desc"
+str_query = "select convert(varchar(4),np) as np,kolvo,convert(char(10),dt,104) as dt2 from bpd.registr_documents where doc_type = "+STR(ctype);
+	+" and invtp = 4 and is_check = 0"
 b = SQLEXEC(con_bd,str_query,'cur_tmpk')
 SELECT 'cur_tmpk'
-SCAN WHILE ISNULL(kolvo_real)
+SCAN 
 	cur_date = dt2
 	cur_np = ALLTRIM(np)
 	cur_kolvo = kolvo
@@ -33,8 +33,8 @@ SCAN WHILE ISNULL(kolvo_real)
 	ELSE
 		SELECT 'tmp_cur'
 		cur_kolvo_real = k
-		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+" WHERE dt=convert(date,'"+cur_date+"') and np=";
-					+cur_np+" and doc_type = "+STR(ctype)+" and invtp = 4"
+		str_query = "UPDATE bpd.registr_documents SET kolvo_real ="+STR(cur_kolvo_real)+",is_check = 1 WHERE np="+cur_np+" and doc_type = "+STR(ctype);
+			+" and invtp = 4 and is_check = 0"
 		b = SQLEXEC(con_bd,str_query)
 		IF cur_kolvo#cur_kolvo_real
 			INSERT INTO tmp(dt,np,kolvo,kolvo_real) VALUES (cur_date,cur_np,cur_kolvo,cur_kolvo_real)
@@ -44,8 +44,8 @@ SCAN WHILE ISNULL(kolvo_real)
 ENDSCAN
 
 str_query = "select convert(varchar(4),convert(smallint,np)) as np,COUNT(*) as k FROM bpd.razzag WHERE grup<700 group by np"
-b = SQLEXEC(con_bd,str_query,'cur_tmpk')
-SELECT 'cur_tmpk'
+b = SQLEXEC(con_bd,str_query,'cur_tmpk_oper')
+SELECT 'cur_tmpk_oper'
 SCAN
 	cur_np = ALLTRIM(np) 
 	cur_kolvo_real = k
@@ -53,13 +53,11 @@ SCAN
 	b = SQLEXEC(con_bd,str_query,'tmp_cur')
 	SELECT 'tmp_cur'
 	cur_date = STUFF(STUFF(dvv,3,0,'.'),6,0,'.')
-	str_query = "select kolvo from bpd.registr_documents where dt=convert(date,'"+cur_date+"') and np = "+cur_np+" and doc_type = "+STR(ctype);
-		+" and invtp = 4"
-	b = SQLEXEC(con_bd,str_query,'tmp_cur')
+	SELECT * FROM cur_tmpk WHERE np = cur_np INTO CURSOR tmp_cur
 	IF RECCOUNT('tmp_cur') = 0
 		INSERT INTO tmp(dt,np,kolvo,kolvo_real) VALUES (cur_date,cur_np,0,cur_kolvo_real)
 	ENDIF
-	SELECT 'cur_tmpk'
+	SELECT 'cur_tmpk_oper'
 ENDSCAN
 
 SELECT 'tmp'
